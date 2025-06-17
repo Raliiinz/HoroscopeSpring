@@ -1,0 +1,57 @@
+### Получить данные текущего пользователя
+GET http://localhost:8081/api/v1/profile/me
+Authorization: Bearer {{auth_token}}
+Accept: application/json
+
+> {%
+    client.test("Получение профиля - успешно", function() {
+        client.assert(response.status === 200, "Ожидался статус 200");
+        client.assert(response.body.email, "Email не получен");
+        client.assert(response.body.userName, "Имя пользователя не получено");
+    });
+%}
+
+### Обновить профиль
+PUT http://localhost:8081/api/v1/profile/me
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "email": "updated@example.com",
+  "userName": "updateduser",
+  "birthDate": "1990-07-01"
+}
+
+> {%
+    client.test("Обновление профиля - успешно", function() {
+        client.assert(response.status === 200, "Ожидался статус 200");
+        client.assert(response.body.email === "updated@example.com", "Email не обновлен");
+        client.assert(response.body.userName === "updateduser", "Имя пользователя не обновлено");
+    });
+%}
+
+### Изменить пароль
+PATCH http://localhost:8081/api/v1/profile/me/password
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "newPassword": "NewPassword123!",
+  "confirmNewPassword": "NewPassword123!"
+}
+
+> {%
+    client.test("Изменение пароля - успешно", function() {
+        client.assert(response.status === 200, "Ожидался статус 200");
+    });
+%}
+
+### Удалить аккаунт
+DELETE http://localhost:8081/api/v1/profile/me
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.test("Удаление аккаунта - успешно", function() {
+        client.assert(response.status === 204, "Ожидался статус 204");
+    });
+%}
