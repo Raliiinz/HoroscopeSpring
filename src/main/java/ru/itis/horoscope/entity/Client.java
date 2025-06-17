@@ -3,6 +3,8 @@ package ru.itis.horoscope.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.sql.Date;
 
@@ -29,6 +31,12 @@ public class Client {
 
     @Column(name = "birth_date", nullable = false)
     private Date birthDate;
+
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
 
     public Client(String email, String userName, java.sql.Date birthDate, String password) {
         this.email = email;

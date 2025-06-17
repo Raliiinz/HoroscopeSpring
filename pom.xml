@@ -162,6 +162,18 @@
       <version>4.9.3</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20210307</version>
+    </dependency>
+    <!-- Для работы с Brevo/Sendinblue -->
+    <dependency>
+      <groupId>com.sendinblue</groupId>
+      <artifactId>sib-api-v3-sdk</artifactId>
+      <version>3.0.1</version>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -5,26 +5,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.itis.horoscope.controller.request.LoginClientRequest;
 import ru.itis.horoscope.controller.request.RegisterClientRequest;
+import ru.itis.horoscope.controller.request.ResetPasswordRequest;
 import ru.itis.horoscope.entity.Client;
-import ru.itis.horoscope.exception.ClientAlreadyExistsException;
-import ru.itis.horoscope.exception.InvalidCredentialsException;
+import ru.itis.horoscope.exception.*;
 import ru.itis.horoscope.security.JwtTokenUtils;
+import ru.itis.horoscope.service.BrevoService;
 import ru.itis.horoscope.service.ClientAuthService;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.Map;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
@@ -32,6 +35,7 @@ public class AuthController {
     private final ClientAuthService clientAuthService;
     private final UserDetailsService userDetailsService;
     private final JwtTokenUtils jwtTokenUtils;
+    private final BrevoService brevoService;
 
     @GetMapping("/login")
     public String showLoginPage(Model model) {
@@ -39,11 +43,6 @@ public class AuthController {
             model.addAttribute("loginClientRequest", new LoginClientRequest());
         }
         return "login";
-
-//        if (!model.containsAttribute("error")) {
-//            model.addAttribute("error", "");
-//        }
-//        return "login";
     }
 
 
@@ -80,55 +79,6 @@ public class AuthController {
         }
     }
 
-//    @PostMapping("/login")
-//    public String login(
-//            @ModelAttribute("loginClientRequest") LoginClientRequest loginClientRequest,
-//            HttpServletRequest request,
-//            HttpServletResponse response,
-//            RedirectAttributes redirectAttributes
-//    ) {
-//        request.getSession().invalidate();
-//
-//        String email = loginClientRequest.getEmail();
-//        String password = loginClientRequest.getPassword();
-//
-//        boolean hasErrors = false;
-//
-//        if (email == null || email.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorEmail", "Почта не может быть пустой");
-//            hasErrors = true;
-//        }
-//
-//        if (password == null || password.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorPassword", "Пароль не может быть пустым");
-//            hasErrors = true;
-//        }
-//
-//        if (hasErrors) {
-//            redirectAttributes.addFlashAttribute("email", email);
-//            return "redirect:/login";
-//        }
-//
-//        try {
-//            Client client = clientAuthService.login(email, password);
-//            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-//            String token = jwtTokenUtils.generateToken(client.getId(), userDetails);
-//            Cookie jwtCookie = new Cookie("JWT", token);
-//            jwtCookie.setHttpOnly(true);
-//            jwtCookie.setPath("/");
-//            jwtCookie.setMaxAge(30 * 60);
-//
-//            response.addCookie(jwtCookie);
-//
-//            return "redirect:/main";
-//
-//        } catch (InvalidCredentialsException e) {
-//            redirectAttributes.addFlashAttribute("error", "Неверный телефон или пароль");
-//            redirectAttributes.addFlashAttribute("email", email);
-//            return "redirect:/login";
-//        }
-//    }
-
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie jwtCookie = new Cookie("JWT", null);
@@ -148,24 +98,6 @@ public class AuthController {
             model.addAttribute("registerClientRequest", new RegisterClientRequest());
         }
         return "registration";
-
-
-//        if (!model.containsAttribute("errorEmail")) {
-//            model.addAttribute("errorEmail", "");
-//        }
-//        if (!model.containsAttribute("errorPassword")) {
-//            model.addAttribute("errorPassword", "");
-//        }
-//        if (!model.containsAttribute("errorConfirmPassword")) {
-//            model.addAttribute("errorConfirmPassword", "");
-//        }
-//        if (!model.containsAttribute("errorUserName")) {
-//            model.addAttribute("errorUserName", "");
-//        }
-//        if (!model.containsAttribute("errorBirthDate")) {
-//            model.addAttribute("errorBirthDate", "");
-//        }
-//        return "registration";
     }
 
     @PostMapping("/register")
@@ -174,7 +106,6 @@ public class AuthController {
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
-        // Если есть ошибки валидации — вернуть обратно
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.registerClientRequest", result);
             redirectAttributes.addFlashAttribute("registerClientRequest", registerClientRequest);
@@ -184,7 +115,6 @@ public class AuthController {
         String password = registerClientRequest.getPassword();
         String confirmPassword = registerClientRequest.getConfirmPassword();
 
-        // Сравнение паролей — можно перенести в собственный Validator или сам DTO
         if (!password.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("errorConfirmPassword", "Пароли не совпадают.");
             redirectAttributes.addFlashAttribute("registerClientRequest", registerClientRequest);
@@ -210,80 +140,182 @@ public class AuthController {
         }
     }
 
-//    @PostMapping("/register")
-//    public String register(
-//            @Valid @ModelAttribute("registerClientRequest") RegisterClientRequest registerClientRequest,
-//            RedirectAttributes redirectAttributes
-//    ) {
-//        String userName = registerClientRequest.getUserName();
-//        String birthDateStr = registerClientRequest.getBirthDate();
-//        String email = registerClientRequest.getEmail();
-//        String password = registerClientRequest.getPassword();
-//        String confirmPassword = registerClientRequest.getConfirmPassword();
-//
-//        boolean hasErrors = false;
-//
-//        if (userName == null || userName.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorUserName", "Имя не может быть пустым.");
-//            hasErrors = true;
-//        }
-//
-//        if (email == null || email.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorEmail", "Почта не может быть пустой.");
-//            hasErrors = true;
-//        }
-//        if (password == null || password.isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorPassword", "Пароль не может быть пустым.");
-//            hasErrors = true;
-//        }
-//
-//        if (!password.equals(confirmPassword)) {
-//            redirectAttributes.addFlashAttribute("errorConfirmPassword", "Пароли не совпадают.");
-//            hasErrors = true;
-//        }
-//
-//        Date birthDate = null;
-//        if (birthDateStr == null || birthDateStr.trim().isEmpty()) {
-//            redirectAttributes.addFlashAttribute("errorBirthDate", "Дата рождения не может быть пустой");
-//            hasErrors = true;
-//        } else {
-//            try {
-//                birthDate = Date.valueOf(birthDateStr);
-//                LocalDate minDate = LocalDate.of(1900, 1, 1);
-//                LocalDate maxDate = LocalDate.now();
-//
-//                if (birthDate.toLocalDate().isBefore(minDate)) {
-//                    redirectAttributes.addFlashAttribute("errorBirthDate", "Дата рождения не может быть раньше 1900 года");
-//                    hasErrors = true;
-//                } else if (birthDate.toLocalDate().isAfter(maxDate)) {
-//                    redirectAttributes.addFlashAttribute("errorBirthDate", "Дата рождения не может быть в будущем");
-//                    hasErrors = true;
-//                }
-//            } catch (IllegalArgumentException e) {
-//                redirectAttributes.addFlashAttribute("errorBirthDate", "Неверный формат даты. Используйте ГГГГ-ММ-ДД");
-//                hasErrors = true;
-//            }
-//        }
-//
-//        if (hasErrors) {
-//            redirectAttributes.addFlashAttribute("userName", userName);
-//            redirectAttributes.addFlashAttribute("birthDate", birthDateStr);
-//            redirectAttributes.addFlashAttribute("email", email);
-//            return "redirect:/register";
-//        }
-//
+//    @PostMapping("/api/auth/forgot-password")
+//    @ResponseBody
+//    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
 //        try {
-//            clientAuthService.register(email, userName,password, confirmPassword, birthDate);
+//            // Логируем полученный email
+//            System.out.println("Получен запрос для email: " + email);
 //
-//            redirectAttributes.addFlashAttribute("registrationSuccess", "Регистрация прошла успешно! Теперь вы можете войти.");
+//            String resetToken = clientAuthService.generatePasswordResetToken(email);
+//            System.out.println("Сгенерирован токен: " + resetToken);
 //
-//            return "redirect:/login";
-//        } catch (ClientAlreadyExistsException e) {
-//            redirectAttributes.addFlashAttribute("errorEmail", e.getMessage());
-//            redirectAttributes.addFlashAttribute("userName", userName);
-//            redirectAttributes.addFlashAttribute("birthDate", birthDateStr);
-//            redirectAttributes.addFlashAttribute("email", email);
-//            return "redirect:/register";
+//            // Временный ответ без реальной отправки письма
+//            return ResponseEntity.ok().body(Map.of(
+//                    "success", true,
+//                    "message", "Тестовый режим: запрос получен (email: " + email + ")"
+//            ));
+//
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500).body(Map.of(
+//                    "success", false,
+//                    "message", "Тестовая ошибка: " + e.getMessage()
+//            ));
 //        }
 //    }
+
+//    @GetMapping("/test-email")
+//    @ResponseBody
+//    public ResponseEntity<?> testEmail(@RequestParam String email) throws EmailSendingException {
+//        boolean result = brevoService.sendPasswordResetEmail(email, "test-token-123");
+//        return ResponseEntity.ok().body(Map.of("success", result));
+//    }
+
+//    @PostMapping("/api/auth/forgot-password")
+//    @ResponseBody
+//    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+//        log.info("Start processing forgot password for: {}", email);
+//
+//        try {
+//            // 1. Простая проверка email
+//            if (email == null || email.isEmpty()) {
+//                log.warn("Empty email received");
+//                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Email не может быть пустым"));
+//            }
+//
+//            // 2. Тестовая генерация токена
+//            String testToken = "test-token-" + System.currentTimeMillis();
+//            log.info("Generated test token: {}", testToken);
+//
+//            String resetToken = clientAuthService.generatePasswordResetToken(email);
+//            log.info("Real token generated: {}", resetToken);
+//
+//            // 3. Тестовая отправка (без реального вызова сервиса)
+//            log.info("Test email sending to: {}", email);
+//            try {
+//                boolean emailSent = brevoService.sendPasswordResetEmail(email, resetToken);
+//                if (!emailSent) {
+//                    throw new EmailSendingException("Email service returned false");
+//                }
+//            } catch (Exception e) {
+//                log.error("Email sending failed", e);
+//                throw e;
+//            }
+//
+//            return ResponseEntity.ok().body(Map.of(
+//                    "success", true,
+//                    "message", "Тестовый режим: токен " + testToken + " сгенерирован для " + email
+//            ));
+//
+//        } catch (Exception e) {
+//            log.error("Error in forgotPassword endpoint", e);
+//            return ResponseEntity.internalServerError().body(Map.of(
+//                    "success", false,
+//                    "message", "Тестовая ошибка: " + e.getClass().getSimpleName()
+//            ));
+//        }
+//    }
+
+//     API для восстановления пароля
+    @PostMapping("/api/auth/forgot-password")
+    @ResponseBody
+    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+        try {
+            System.out.println("Получен запрос на восстановление пароля для email: " + email);
+
+            // 1. Проверка формата email
+            if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                System.out.println("Неверный формат email: " + email);
+                return ResponseEntity.badRequest().body(Map.of(
+                        "success", false,
+                        "message", "Неверный формат email"
+                ));
+            }
+
+            // 2. Генерация токена
+            String resetToken = clientAuthService.generatePasswordResetToken(email);
+            System.out.println("Сгенерирован токен для email " + email + ": " + resetToken);
+
+            // 3. Отправка email
+            System.out.println("Попытка отправки письма...");
+            boolean emailSent = brevoService.sendPasswordResetEmail(email, resetToken);
+
+            if (emailSent) {
+                System.out.println("Письмо успешно отправлено на " + email);
+                return ResponseEntity.ok().body(Map.of(
+                        "success", true,
+                        "message", "Инструкции по восстановлению пароля отправлены на ваш email"
+                ));
+            } else {
+                System.out.println("Не удалось отправить письмо на " + email);
+                throw new EmailSendingException("Не удалось отправить письмо");
+            }
+        } catch (ClientNotFoundException e) {
+            System.out.println("Пользователь не найден: " + email);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Пользователь с таким email не найден"
+            ));
+        } catch (EmailSendingException e) {
+            System.out.println("Ошибка отправки письма: " + e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Ошибка при отправке письма. Пожалуйста, попробуйте позже."
+            ));
+        } catch (TooManyResetAttemptsException e) {
+            System.out.println("Слишком много попыток для email: " + email);
+            return ResponseEntity.status(429).body(Map.of(
+                    "success", false,
+                    "message", "Слишком много запросов. Пожалуйста, попробуйте позже."
+            ));
+        } catch (Exception e) {
+            System.out.println("Неожиданная ошибка: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Внутренняя ошибка сервера: " + e.getMessage()
+            ));
+        }
+    }
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordPage(@RequestParam String token, Model model) {
+        try {
+            clientAuthService.validatePasswordResetToken(token);
+            model.addAttribute("token", token);
+            model.addAttribute("resetPasswordRequest", new ResetPasswordRequest());
+            return "reset-password";
+        } catch (InvalidTokenException e) {
+            model.addAttribute("error", "Недействительная или просроченная ссылка");
+            return "reset-password-error";
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @Valid @ModelAttribute("resetPasswordRequest") ResetPasswordRequest request,
+            BindingResult result,
+            @RequestParam String token,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.resetPasswordRequest", result);
+            redirectAttributes.addFlashAttribute("resetPasswordRequest", request);
+            return "redirect:/reset-password?token=" + token;
+        }
+
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
+            return "redirect:/reset-password?token=" + token;
+        }
+
+        try {
+            clientAuthService.resetPassword(token, request.getNewPassword());
+            redirectAttributes.addFlashAttribute("success", "Пароль успешно изменен");
+            return "redirect:/login";
+        } catch (InvalidTokenException e) {
+            redirectAttributes.addFlashAttribute("error", "Недействительная или просроченная ссылка");
+            return "redirect:/reset-password-error";
+        }
+    }
 }

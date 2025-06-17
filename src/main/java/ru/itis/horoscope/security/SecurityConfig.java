@@ -32,11 +32,12 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.securityMatcher("/api/v1/**")
+        http.securityMatcher("/api/v1/**", "/test-email")
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll() // Разрешаем доступ к аутентификации
+                                .requestMatchers("/test-email").permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/auth/forgot-password","/reset-password", "/test-email").permitAll() // Разрешаем доступ к аутентификации
                         .requestMatchers("/api/v1/profile/**").authenticated() // Защищаем профиль
                         .anyRequest().authenticated()
 //                        .requestMatchers("/api/v1/client/**").authenticated()
@@ -54,7 +55,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login", "/register", "/forgot-password", "/reset-password", "/error/**","/css/**", "/js/**", "/assets/**", "/WEB-INF/views/**","/swagger-ui/**", "/api/v3/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/test-email").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/api/auth/forgot-password","/forgot-password", "/reset-password", "/error/**","/css/**", "/js/**", "/assets/**", "/WEB-INF/views/**","/swagger-ui/**", "/api/v3/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/profile").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)
