@@ -52,33 +52,9 @@ public class ClientAuthServiceImpl implements ClientAuthService {
         inputDto.setBirthDate(birthDate);
 
         return clientService.createClient(inputDto, password);
-//        Client client = clientService.createClient(
-//                new ClientDto(email, username, birthDate), password);
-//        return clientService.findClientByEmail(client.getEmail());
     }
 
-//    @Override
-//    public String generatePasswordResetToken(String email) throws ClientNotFoundException, TooManyResetAttemptsException {
-//        Client client = clientRepository.findByEmail(email)
-//                .orElseThrow(() -> new ClientNotFoundException("Пользователь не найден"));
-//
-//        // Проверяем, не было ли слишком много запросов
-////        if (client.getResetToken() != null &&
-////                client.getResetTokenExpiry() != null &&
-////                client.getResetTokenExpiry().isAfter(LocalDateTime.now().minusHours(1))) {
-////            throw new TooManyResetAttemptsException("Слишком много запросов. Попробуйте позже.");
-////        }
-//
-//        // Генерируем новый токен
-//        String token = UUID.randomUUID().toString();
-//        client.setResetToken(token);
-//        client.setResetTokenExpiry(LocalDateTime.now().plusHours(24)); // Токен действителен 24 часа
-//        clientRepository.save(client);
-//
-//        return token;
-//
-//
-//    }
+
     @Override
     public String generatePasswordResetToken(String email) throws ClientNotFoundException {
         log.info("Generating token for email: {}", email);

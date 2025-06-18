@@ -26,8 +26,6 @@ public class AdviceForYearController {
         if (zodiac == null) {
             model.addAttribute("error", "Знак зодиака не определен");
             return "adviceForYear";
-            // Можно добавить редирект или сообщение об ошибке
-//            return "redirect:/someErrorPage";
         }
 
         try {

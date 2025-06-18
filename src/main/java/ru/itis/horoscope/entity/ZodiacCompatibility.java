@@ -17,12 +17,6 @@ public class ZodiacCompatibility {
     @Column(name = "zodiac_compatibility_id")
     private Integer zodiacCompatibilityId;
 
-//    @Column(name = "sign1", nullable = false)
-//    private Integer signIdMan;
-//
-//    @Column(name = "sign2", nullable = false)
-//    private Integer signIdWoman;
-
     @Column(name = "percent_info", columnDefinition = "TEXT")
     private String percentInfo;
 

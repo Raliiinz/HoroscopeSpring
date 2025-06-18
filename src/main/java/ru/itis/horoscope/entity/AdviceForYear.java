@@ -17,9 +17,6 @@ public class AdviceForYear {
     @Column(name = "advice_for_year_id")
     private Integer adviceForYearId;
 
-//    @Column(name = "zodiac_sign_id", nullable = false)
-//    private Integer zodiacSignId;
-
     @Column(name = "advice_year", nullable = false)
     private Integer adviceYear;
 

@@ -3,31 +3,10 @@ package ru.itis.horoscope.controller.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.itis.horoscope.controller.dto.ClientDto;
-import ru.itis.horoscope.controller.dto.ClientInputDto;
 import ru.itis.horoscope.controller.dto.ClientOutputDto;
 import ru.itis.horoscope.entity.Client;
 import ru.itis.horoscope.service.ZodiacService;
 
-//@Component
-//@RequiredArgsConstructor
-//public class ClientMapper {
-//
-//    private final ZodiacService zodiacService;
-//
-//    public ClientDto toDto(Client client) {
-//        String zodiacSign = null;
-//        if (client.getBirthDate() != null) {
-//            zodiacSign = zodiacService.getZodiac(client.getBirthDate().toString()).getSignName();
-//        }
-//
-//        return new ClientDto(
-//                client.getEmail(),
-//                client.getUserName(),
-//                client.getBirthDate(),
-//                zodiacSign
-//        );
-//    }
-//}
 
 @Component
 @RequiredArgsConstructor

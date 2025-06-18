@@ -24,7 +24,6 @@ import ru.itis.horoscope.security.JwtTokenUtils;
 import ru.itis.horoscope.service.BrevoService;
 import ru.itis.horoscope.service.ClientAuthService;
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.Map;
 
 @Slf4j
@@ -140,81 +139,6 @@ public class AuthController {
         }
     }
 
-//    @PostMapping("/api/auth/forgot-password")
-//    @ResponseBody
-//    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
-//        try {
-//            // Логируем полученный email
-//            System.out.println("Получен запрос для email: " + email);
-//
-//            String resetToken = clientAuthService.generatePasswordResetToken(email);
-//            System.out.println("Сгенерирован токен: " + resetToken);
-//
-//            // Временный ответ без реальной отправки письма
-//            return ResponseEntity.ok().body(Map.of(
-//                    "success", true,
-//                    "message", "Тестовый режим: запрос получен (email: " + email + ")"
-//            ));
-//
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(Map.of(
-//                    "success", false,
-//                    "message", "Тестовая ошибка: " + e.getMessage()
-//            ));
-//        }
-//    }
-
-//    @GetMapping("/test-email")
-//    @ResponseBody
-//    public ResponseEntity<?> testEmail(@RequestParam String email) throws EmailSendingException {
-//        boolean result = brevoService.sendPasswordResetEmail(email, "test-token-123");
-//        return ResponseEntity.ok().body(Map.of("success", result));
-//    }
-
-//    @PostMapping("/api/auth/forgot-password")
-//    @ResponseBody
-//    public ResponseEntity<?> forgotPassword(@RequestParam String email) {
-//        log.info("Start processing forgot password for: {}", email);
-//
-//        try {
-//            // 1. Простая проверка email
-//            if (email == null || email.isEmpty()) {
-//                log.warn("Empty email received");
-//                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Email не может быть пустым"));
-//            }
-//
-//            // 2. Тестовая генерация токена
-//            String testToken = "test-token-" + System.currentTimeMillis();
-//            log.info("Generated test token: {}", testToken);
-//
-//            String resetToken = clientAuthService.generatePasswordResetToken(email);
-//            log.info("Real token generated: {}", resetToken);
-//
-//            // 3. Тестовая отправка (без реального вызова сервиса)
-//            log.info("Test email sending to: {}", email);
-//            try {
-//                boolean emailSent = brevoService.sendPasswordResetEmail(email, resetToken);
-//                if (!emailSent) {
-//                    throw new EmailSendingException("Email service returned false");
-//                }
-//            } catch (Exception e) {
-//                log.error("Email sending failed", e);
-//                throw e;
-//            }
-//
-//            return ResponseEntity.ok().body(Map.of(
-//                    "success", true,
-//                    "message", "Тестовый режим: токен " + testToken + " сгенерирован для " + email
-//            ));
-//
-//        } catch (Exception e) {
-//            log.error("Error in forgotPassword endpoint", e);
-//            return ResponseEntity.internalServerError().body(Map.of(
-//                    "success", false,
-//                    "message", "Тестовая ошибка: " + e.getClass().getSimpleName()
-//            ));
-//        }
-//    }
 
 //     API для восстановления пароля
     @PostMapping("/api/auth/forgot-password")

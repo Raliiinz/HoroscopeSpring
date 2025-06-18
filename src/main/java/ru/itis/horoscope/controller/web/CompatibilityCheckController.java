@@ -9,8 +9,6 @@ import ru.itis.horoscope.entity.ZodiacCompatibility;
 import ru.itis.horoscope.service.ZodiacCompatibilityService;
 import ru.itis.horoscope.service.ZodiacService;
 import ru.itis.horoscope.validation.InputValidator;
-
-import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,40 +80,4 @@ public class CompatibilityCheckController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-//    @PostMapping
-//    public String checkCompatibility(
-//            @RequestParam String manBirthDate,
-//            @RequestParam String womanBirthDate,
-//            Model model) {
-//
-//        if (validator.isNullOrEmpty(manBirthDate) || validator.isNullOrEmpty(womanBirthDate)) {
-//            model.addAttribute("error", "Пожалуйста, заполните оба поля даты рождения");
-//            return "compatibilityCheck";
-//        }
-//
-//        if (!validator.isValidBirthDate(manBirthDate) || !validator.isValidBirthDate(womanBirthDate)) {
-//            model.addAttribute("error", "Введите корректные даты рождения");
-//            return "compatibilityCheck";
-//        }
-//
-//        try {
-//            Integer manSign = zodiacService.getZodiacSign(manBirthDate);
-//            Integer womanSign = zodiacService.getZodiacSign(womanBirthDate);
-//
-//            ZodiacCompatibility result = zodiacCompatibilityService.getCompatibility(manSign, womanSign);
-//
-//            if (result != null) {
-//                model.addAttribute("result", result);
-//                return "compatibilityResult";
-//            } else {
-//                model.addAttribute("error", "Совместимость не найдена");
-//                return "compatibilityCheck";
-//            }
-//        } catch (Exception e) {
-//            model.addAttribute("error", "Произошла ошибка при проверке совместимости");
-//            return "compatibilityCheck";
-//        }
-//    }
-
 }

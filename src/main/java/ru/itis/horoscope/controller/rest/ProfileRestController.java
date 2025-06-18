@@ -22,7 +22,6 @@ import ru.itis.horoscope.exception.ClientAlreadyExistsException;
 import ru.itis.horoscope.exception.PasswordMismatchException;
 import ru.itis.horoscope.security.AuthUtils;
 import ru.itis.horoscope.service.ClientService;
-import ru.itis.horoscope.service.impl.ClientAuthServiceImpl;
 
 @Tag(name = "Profile Rest Controller", description = "Операции для работы с профилем пользователя")
 @SecurityRequirement(name = "bearerAuth")

@@ -65,10 +65,6 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new NotFoundException("Клиент не найден"));
 
-//        if (!passwordEncoder.matches(currentPassword, client.getPassword())) {
-//            throw new PasswordMismatchException("Неверный текущий пароль");
-//        }
-
         if(!newPassword.equals(confirmNewPassword)) {
             throw new PasswordMismatchException("Пароли не совпадают");
         }

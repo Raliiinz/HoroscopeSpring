@@ -25,8 +25,6 @@ public class SignInfoController {
             Zodiac zodiacWithStones = zodiacService.getZodiacWithStones(zodiac.getSignId());
             ZodiacDto zodiacDto = zodiacMapper.toDto(zodiacWithStones);
             model.addAttribute("zodiac", zodiacDto);
-//            ZodiacDto zodiacDto = zodiacMapper.toDto(zodiac);
-//            model.addAttribute("zodiac", zodiacDto);
 
             // Добавляем URL внешнего сервиса
             model.addAttribute("stoneServiceUrl", "http://localhost:5001");

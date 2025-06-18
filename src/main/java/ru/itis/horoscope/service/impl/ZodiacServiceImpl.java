@@ -3,7 +3,6 @@ package ru.itis.horoscope.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.itis.horoscope.entity.Zodiac;
-import ru.itis.horoscope.repository.ZodiacCompatibilityRepository;
 import ru.itis.horoscope.repository.ZodiacRepository;
 import ru.itis.horoscope.service.ZodiacService;
 
