@@ -205,6 +205,8 @@ public class AuthController {
     @GetMapping("/reset-password")
     public String showResetPasswordPage(@RequestParam String token, Model model) {
         try {
+            // Валидация токена
+            // Добавляем токен в модель
             clientAuthService.validatePasswordResetToken(token);
             model.addAttribute("token", token);
             model.addAttribute("resetPasswordRequest", new ResetPasswordRequest());
@@ -222,12 +224,14 @@ public class AuthController {
             @RequestParam String token,
             RedirectAttributes redirectAttributes
     ) {
+        // Проверка совпадения паролей
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.resetPasswordRequest", result);
             redirectAttributes.addFlashAttribute("resetPasswordRequest", request);
             return "redirect:/reset-password?token=" + token;
         }
 
+        // Сброс пароля
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             redirectAttributes.addFlashAttribute("error", "Пароли не совпадают");
             return "redirect:/reset-password?token=" + token;

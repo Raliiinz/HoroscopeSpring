@@ -13,8 +13,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import ru.itis.horoscope.entity.Client;
 import ru.itis.horoscope.service.ClientService;
-
-
 import java.io.IOException;
 
 @Component

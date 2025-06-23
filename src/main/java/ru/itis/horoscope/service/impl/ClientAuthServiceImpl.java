@@ -76,6 +76,7 @@ public class ClientAuthServiceImpl implements ClientAuthService {
 
     @Override
     public void validatePasswordResetToken(String token) throws InvalidTokenException {
+        // Проверяем существование токена
         log.info("Validating token: {}", token);
         Client client = clientRepository.findByResetToken(token)
                 .orElseThrow(() -> {
@@ -83,6 +84,7 @@ public class ClientAuthServiceImpl implements ClientAuthService {
                     return new InvalidTokenException("Недействительный токен");
                 });
 
+        // Проверяем срок действия
         if (client.getResetTokenExpiry() == null ||
                 client.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
             log.error("Token expired: {}", token);
@@ -93,6 +95,7 @@ public class ClientAuthServiceImpl implements ClientAuthService {
 
     @Override
     public void resetPassword(String token, String newPassword) throws InvalidTokenException {
+        // Находим пользователя по токену
         Client client = clientRepository.findByResetToken(token)
                 .orElseThrow(() -> new InvalidTokenException("Недействительный токен"));
 
@@ -103,6 +106,7 @@ public class ClientAuthServiceImpl implements ClientAuthService {
 
         // Обновляем пароль
         client.setPassword(passwordEncoder.encode(newPassword));
+        // Очищаем токен
         client.setResetToken(null);
         client.setResetTokenExpiry(null);
         clientRepository.save(client);

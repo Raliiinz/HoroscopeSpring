@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Проверка совместимости</title>
     <link rel="stylesheet" href="<c:url value='/css/main.css'/>">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </head>
 <body>
@@ -73,57 +72,61 @@
         }
     }
 
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
         // Обработчик изменения дат
-        $('#manBirthDate, #womanBirthDate').change(function() {
-            checkCompatibility();
-        });
+        document.getElementById('manBirthDate').addEventListener('change', checkCompatibility);
+        document.getElementById('womanBirthDate').addEventListener('change', checkCompatibility);
 
         // Обработчик кнопки
-        $('#checkButton').click(function() {
-            checkCompatibility();
-        });
+        document.getElementById('checkButton').addEventListener('click', checkCompatibility);
 
         function checkCompatibility() {
-            const manDate = $('#manBirthDate').val();
-            const womanDate = $('#womanBirthDate').val();
+            const manDate = document.getElementById('manBirthDate').value;
+            const womanDate = document.getElementById('womanBirthDate').value;
 
             if (!manDate || !womanDate) {
                 return;
             }
 
-            $.ajax({
-                url: '${pageContext.request.contextPath}/compatibilityCheck',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
+            fetch('${pageContext.request.contextPath}/compatibilityCheck', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
                     manBirthDate: manDate,
                     womanBirthDate: womanDate
-                }),
-                success: function(response) {
-                    if (response.error) {
-                        $('#errorContainer').text(response.error).show();
-                        $('#resultContainer').hide();
+                })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('errorContainer').textContent = data.error;
+                        document.getElementById('errorContainer').style.display = 'block';
+                        document.getElementById('resultContainer').style.display = 'none';
                     } else {
-                        $('#percentInfo').text(response.percentInfo);
-                        $('#loveInfo').text(response.loveInfo);
-                        $('#familyInfo').text(response.familyInfo);
-                        $('#friendsInfo').text(response.friendsInfo);
-                        $('#workInfo').text(response.workInfo);
+                        document.getElementById('percentInfo').textContent = data.percentInfo;
+                        document.getElementById('loveInfo').textContent = data.loveInfo;
+                        document.getElementById('familyInfo').textContent = data.familyInfo;
+                        document.getElementById('friendsInfo').textContent = data.friendsInfo;
+                        document.getElementById('workInfo').textContent = data.workInfo;
 
-                        $('#resultContainer').show();
-                        $('#errorContainer').hide();
+                        document.getElementById('resultContainer').style.display = 'block';
+                        document.getElementById('errorContainer').style.display = 'none';
                     }
-                },
-                error: function(xhr) {
+                })
+                .catch(error => {
                     let errorMsg = 'Произошла ошибка при проверке совместимости';
-                    if (xhr.responseJSON && xhr.responseJSON.error) {
-                        errorMsg = xhr.responseJSON.error;
-                    }
-                    $('#errorContainer').text(errorMsg).show();
-                    $('#resultContainer').hide();
-                }
-            });
+                    document.getElementById('errorContainer').textContent = errorMsg;
+                    document.getElementById('errorContainer').style.display = 'block';
+                    document.getElementById('resultContainer').style.display = 'none';
+                    console.error('Error:', error);
+                });
         }
     });
 </script>

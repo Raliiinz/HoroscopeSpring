@@ -40,8 +40,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**", "/api/auth/forgot-password","/reset-password", "/test-email").permitAll() // Разрешаем доступ к аутентификации
                         .requestMatchers("/api/v1/profile/**").authenticated() // Защищаем профиль
                         .anyRequest().authenticated()
-//                        .requestMatchers("/api/v1/client/**").authenticated()
-//                        .requestMatchers("/api/v1/**").permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
